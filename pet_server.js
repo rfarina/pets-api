@@ -3,8 +3,9 @@ var app = express();
 
 var bodyParser = require('body-parser');
 
-// var mongoose = require('mongoose');
-// mongoose.connect('mongodb://localhost/cats');
+// Get config files so they can be passed into the routes
+var fs = require('fs');
+var configurationFile = 'config.json';
 
 /* Include middleware*/
 app.use(bodyParser.json()); // parse json if incoming
@@ -22,14 +23,10 @@ app.all('*',function(req, res, next){
 });
 
 
-/* Require other modules */
-// get the cats function and invoke it passing in app
-
-/* Array version with lodash*/
-// var cats = require('./cats.js')(app);
-
-/* mongodb version with permanent backing store */
-var petRoutes = require('./routes/pets.js')(app);
+// Get configuration file and pass it into the routes file along with app
+var config = JSON.parse(fs.readFileSync(configurationFile, 'utf8'));
+// var petRoutes = 
+require('./routes/pets.js')(app, config);
 
 
 var server = app.listen(3002, function() {

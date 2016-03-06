@@ -4,7 +4,7 @@ var app = express();
 var bodyParser = require('body-parser');
 
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/dogs');
+mongoose.connect('mongodb://192.168.1.3/dogs');
 
 /* Include middleware*/
 app.use(bodyParser.json()); // parse json if incoming

@@ -4,7 +4,11 @@ var httpClient = require('request').defaults({
 
 var async = require('async');
 
-module.exports = function(app) {
+module.exports = function(app, config) {
+	// console.log('config inside of pets.js: ',config);
+	var catServerAddress = config.catServerAddress;
+	var dogServerAddress = config.dogServerAddress;
+
 
 	/* ************************************************************ */
 	/* Read */
@@ -14,8 +18,7 @@ module.exports = function(app) {
 
 		async.parallel({
 			catdata: function(callback) {
-
-				httpClient({uri: 'http://localhost:3000/cat'},
+				httpClient({uri: catServerAddress},
 				function(error, response, body){
 					
 					if (error) {
@@ -43,7 +46,7 @@ module.exports = function(app) {
 				}); // end httpClient call
 			},  // end cat
 			dogdata: function(callback) {
-				httpClient({uri: 'http://localhost:3001/dog'},
+				httpClient({uri: dogServerAddress},
 				function(error, response, body){
 					
 					if (error) {
@@ -93,7 +96,7 @@ module.exports = function(app) {
 		async.parallel({
 			catdata: function(callback) {
 
-				httpClient({uri: 'http://localhost:3000/cat/' + req.params.id},
+				httpClient({uri: catServerAddress + req.params.id},
 				function(error, response, body){
 					
 					if (error) {
@@ -141,9 +144,9 @@ module.exports = function(app) {
 	app.get('/dog/:id', function(req, res) {
 
 		async.parallel({
-			catdata: function(callback) {
+			dogdata: function(callback) {
 
-				httpClient({uri: 'http://localhost:3001/dog/' + req.params.id},
+				httpClient({uri: dogServerAddress + req.params.id},
 				function(error, response, body){
 					
 					if (error) {
@@ -198,7 +201,7 @@ module.exports = function(app) {
 			catdata: function(callback) {
 
 				httpClient({
-					uri: 'http://localhost:3000/cat/',
+					uri: catServerAddress,
 					method: 'POST',
 					json: req.body
 				},
@@ -251,7 +254,7 @@ module.exports = function(app) {
 			dogdata: function(callback) {
 
 				httpClient({
-					uri: 'http://localhost:3001/dog/',
+					uri: dogServerAddress,
 					method: 'POST',
 					json: req.body
 				},
@@ -308,7 +311,7 @@ module.exports = function(app) {
 		async.parallel({
 			catdata: function(callback) {
 				httpClient({
-					uri: 'http://localhost:3000/cat/' + req.params.id,
+					uri: catServerAddress + req.params.id,
 					method: 'PUT',
 					json: req.body
 				},
@@ -360,7 +363,7 @@ module.exports = function(app) {
 		async.parallel({
 			dogdata: function(callback) {
 				httpClient({
-					uri: 'http://localhost:3001/dog/' + req.params.id,
+					uri: dogServerAddress + req.params.id,
 					method: 'PUT',
 					json: req.body
 				},
@@ -419,7 +422,7 @@ module.exports = function(app) {
 		async.parallel({
 			catdata: function(callback) {
 				httpClient({
-					uri: 'http://localhost:3000/cat/' + req.params.id,
+					uri: catServerAddress + req.params.id,
 					method: 'DELETE'
 				},
 				function(error, response, body){
@@ -471,7 +474,7 @@ module.exports = function(app) {
 		async.parallel({
 			dogdata: function(callback) {
 				httpClient({
-					uri: 'http://localhost:3001/dog/' + req.params.id,
+					uri: dogServerAddress + req.params.id,
 					method: 'DELETE'
 				},
 				function(error, response, body){
@@ -515,7 +518,7 @@ module.exports = function(app) {
 			})
 		}); // end async.parallel method call
 
-	}); // end get /cat/:id
+	}); // end get /dog/:id
 
 
 
