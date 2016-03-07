@@ -4,6 +4,9 @@ var httpClient = require('request').defaults({
 
 var async = require('async');
 
+var redis = require('redis');
+redisClient = redis.createClient(6379, '127.0.0.1');
+
 module.exports = function(app, config) {
 	// console.log('config inside of pets.js: ',config);
 	var catServerAddress = config.catServerAddress;
@@ -18,32 +21,63 @@ module.exports = function(app, config) {
 
 		async.parallel({
 			catdata: function(callback) {
-				httpClient({uri: catServerAddress},
-				function(error, response, body){
-					
-					if (error) {
-						callback({
-							service: 'cat', 
-							error: error
-						});
-						return;
-					}
-					if (!error && response.statusCode === 200) {
-						// res.json(body);
-						callback(null, body);
-						// setTimeout(function(){
-						// 	callback(null, body);
-						// },10000);
-
-					} else {
-						// res.json({
-						// 	info: "An error occurred getting cats",
-						// 	status: response.statusCode
-						// })
-						callback(response.statusCode);
-					}
 				
-				}); // end httpClient call
+				// Check cache first
+				redisClient.get('basickey', function(error, cat){
+					if(error){throw error;};
+					if(cat) {
+						// use value from cache
+						var jsonCat = JSON.parse(cat);
+						jsonCat.info = 'this data came from cache';
+						console.log('cacheCat:', jsonCat);
+						callback(null, jsonCat);
+						// callback(null, JSON.parse(cat));
+					}else {
+						// retrieve from database
+						httpClient({uri: catServerAddress},
+						function(error, response, body){
+							
+							if (error) {
+								callback({
+									service: 'cat', 
+									error: error
+								});
+								return;
+							}
+							if (!error && response.statusCode === 200) {
+								// res.json(body);
+								body.info = 'this data came from db';
+								console.log('body.info:', body.info);
+								// callback(null, body);
+								// Update cache
+								// redisClient.set('basickey', 10, JSON.stringify(body),function(error){
+								// 	if(error) {throw error;}
+								// })
+								setTimeout(function(){
+									redisClient.setex('basickey', 10, JSON.stringify(body),function(error){
+										if(error) {throw error;};
+										callback(null, body);
+									})
+								},10000);
+
+							} else {
+								// res.json({
+								// 	info: "An error occurred getting cats",
+								// 	status: response.statusCode
+								// })
+								callback(response.statusCode);
+							}
+						
+						}); // end httpClient call						
+
+					}
+
+				});
+
+
+
+
+
 			},  // end cat
 			dogdata: function(callback) {
 				httpClient({uri: dogServerAddress},
