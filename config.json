@@ -1,4 +1,4 @@
 {
-	"catServerAddress" : "http://192.168.1.3:3000/cat/",
-	"dogServerAddress" : "http://192.168.1.3:3001/dog/"
+	"catServerAddress" : "http://192.168.1.2:3000/cat/",
+	"dogServerAddress" : "http://192.168.1.2:3001/dog/"
 }
