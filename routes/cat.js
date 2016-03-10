@@ -36,7 +36,6 @@ module.exports = function(app) {
 					data: cats
 				});
 			}
-
 		});
 	});
 

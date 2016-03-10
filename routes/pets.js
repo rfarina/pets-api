@@ -19,7 +19,9 @@ module.exports = function(app, config) {
 	/* Read */
 	app.get('/pets', function(req, res) {
 
+        // Run ajax calls in parallel and merge when all returned
 		async.parallel({
+            // This callback will be called when the ajax request receives its response
 			catdata: function(callback) {
 				
 				// Check cache first
@@ -46,19 +48,21 @@ module.exports = function(app, config) {
 							}
 							if (!error && response.statusCode === 200) {
 								// res.json(body);
-								body.info = 'this data came from db';
-								console.log('body.info:', body.info);
+								// body.info = 'this data came from db';
+								// console.log('body.info:', body.info);
 								// callback(null, body);
-								// Update cache
+								// // Update cache
 								// redisClient.set('basickey', 10, JSON.stringify(body),function(error){
 								// 	if(error) {throw error;}
 								// })
-								setTimeout(function(){
+
+                                // Uncomment this timeout to cause a 'delay' to prove out caching
+								// setTimeout(function(){
 									redisClient.setex('basickey', 10, JSON.stringify(body),function(error){
 										if(error) {throw error;};
 										callback(null, body);
 									})
-								},10000);
+								// },10000);
 
 							} else {
 								// res.json({
@@ -79,6 +83,8 @@ module.exports = function(app, config) {
 
 
 			},  // end cat
+
+            // This callback will be called when the ajax request receives its response
 			dogdata: function(callback) {
 				httpClient({uri: dogServerAddress},
 				function(error, response, body){
@@ -105,6 +111,8 @@ module.exports = function(app, config) {
 				}); // end function
 			} // end dog
 		},  // end second parm of async parallel
+        
+        // After all parallel calls have completed, Async merges the results and return the response 
 		function(error, results) {
 
 			// // Create block via loop
@@ -112,7 +120,7 @@ module.exports = function(app, config) {
 			// 	console.log(x);
 			// }
 
-			// Return the results from the accumulated asysn calls
+			// Return the results from the accumulated asysnc calls
 			res.json({
 				error: error,
 				results: results
